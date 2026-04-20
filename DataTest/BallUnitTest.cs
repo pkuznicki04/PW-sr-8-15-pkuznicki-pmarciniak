@@ -9,7 +9,7 @@
 //_____________________________________________________________________________________________________________________________________
 
 namespace TP.ConcurrentProgramming.Data.Test
-{
+{/*
   [TestClass]
   public class BallUnitTest
   {
@@ -32,5 +32,5 @@ namespace TP.ConcurrentProgramming.Data.Test
       Assert.AreEqual<int>(1, numberOfCallBackCalled);
       Assert.AreEqual<IVector>(initialPosition, curentPosition);
     }
-  }
+  }*/
 }

@@ -32,11 +32,13 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
 
     #region public API
 
+    public double Diameter {get; set;} = 20.0;
+
     public void Start(int numberOfBalls)
     {
       if (Disposed)
         throw new ObjectDisposedException(nameof(MainWindowViewModel));
-      ModelLayer.Start(numberOfBalls);
+      ModelLayer.Start(numberOfBalls, Diameter);
       Observer.Dispose();
     }
 

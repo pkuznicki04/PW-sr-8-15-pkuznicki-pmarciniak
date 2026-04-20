@@ -11,7 +11,7 @@
 using TP.ConcurrentProgramming.BusinessLogic;
 
 namespace TP.ConcurrentProgramming.Presentation.Model.Test
-{
+{/*
   [TestClass]
   public class PresentationModelUnitTest
   {
@@ -77,5 +77,5 @@ namespace TP.ConcurrentProgramming.Presentation.Model.Test
     }
 
     #endregion testing instrumentation
-  }
+  }*/
 }

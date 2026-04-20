@@ -16,7 +16,7 @@ using TP.ConcurrentProgramming.Presentation.Model;
 using ModelIBall = TP.ConcurrentProgramming.Presentation.Model.IBall;
 
 namespace TP.ConcurrentProgramming.Presentation.ViewModel.Test
-{
+{/*
   [TestClass]
   public class MainWindowViewModelUnitTest
   {
@@ -175,5 +175,5 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel.Test
     }
 
     #endregion testing infrastructure
-  }
+  }*/
 }

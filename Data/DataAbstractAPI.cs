@@ -22,8 +22,8 @@ namespace TP.ConcurrentProgramming.Data
     #endregion Layer Factory
 
     #region public API
-
-    public abstract void Start(int numberOfBalls, Action<IVector, IBall> upperLayerHandler);
+//TUTAJ DODAŁEM ŚREDNICE DO PODAWANYCH DANYCH!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    public abstract void Start(int numberOfBalls, double Diameter, Action<IVector, IBall> upperLayerHandler);
 
     #endregion public API
 
