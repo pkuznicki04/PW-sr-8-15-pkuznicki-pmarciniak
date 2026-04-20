@@ -12,6 +12,7 @@ using System.Collections.ObjectModel;
 using TP.ConcurrentProgramming.Presentation.Model;
 using TP.ConcurrentProgramming.Presentation.ViewModel.MVVMLight;
 using ModelIBall = TP.ConcurrentProgramming.Presentation.Model.IBall;
+using System.Windows.Input;
 
 namespace TP.ConcurrentProgramming.Presentation.ViewModel
 {
@@ -24,22 +25,41 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
 
     internal MainWindowViewModel(ModelAbstractApi modelLayerAPI)
     {
+      Balls = new ObservableCollection<ModelIBall>();
       ModelLayer = modelLayerAPI == null ? ModelAbstractApi.CreateModel() : modelLayerAPI;
       Observer = ModelLayer.Subscribe<ModelIBall>(x => Balls.Add(x));
+
+      StartCommand = new RelayCommand(Start);
     }
 
     #endregion ctor
 
     #region public API
 
+    private int _numberOfBalls = 5;
+
+    public int NumberOfBalls
+    {
+      get =>_numberOfBalls;
+      set
+      {
+        _numberOfBalls = value;
+        RaisePropertyChanged();
+      }
+    }
+
     public double Diameter {get; set;} = 20.0;
 
-    public void Start(int numberOfBalls)
+    public ICommand StartCommand {get; }
+
+    public void Start()
     {
       if (Disposed)
         throw new ObjectDisposedException(nameof(MainWindowViewModel));
-      ModelLayer.Start(numberOfBalls, Diameter);
-      Observer.Dispose();
+
+        Balls.Clear();
+      ModelLayer.Start(NumberOfBalls, Diameter);
+      //Observer.Dispose();
     }
 
     public ObservableCollection<ModelIBall> Balls { get; } = new ObservableCollection<ModelIBall>();

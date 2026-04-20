@@ -9,7 +9,17 @@
     <Window.DataContext>
         <vm:MainWindowViewModel />
     </Window.DataContext>
-    <Border BorderThickness="4" BorderBrush="Green" Height="420" Width="400">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+        <TextBlock Text="Liczba kul: " VerticalAlignment="Center"/>
+        <TextBox Width="80" Margin="10,0" Text="{Binding NumberOfBalls, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+        <Button Content="Start" Width="80" Command="{Binding StartCommand}"/>
+    </StackPanel>
+    <Border Grid.Row="1" BorderThickness="4" BorderBrush="Green" Height="420" Width="400">
         <ItemsControl ItemsSource="{Binding Balls}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -29,4 +39,5 @@
             </ItemsControl.ItemContainerStyle>
         </ItemsControl>
     </Border>
+    </Grid>
 </Window>
