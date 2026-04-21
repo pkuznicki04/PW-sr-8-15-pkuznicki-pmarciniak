@@ -95,7 +95,7 @@ namespace TP.ConcurrentProgramming.Data
     private void Move(object? x)
     {
       foreach (Ball item in BallsList)
-        item.Move((Vector)item.Velocity);
+        //item.Move((Vector)item.Velocity);
       //TUTAJ ZMIENIAM BYŁO 0.5 NIE 0.1
         //item.Move(new Vector((RandomGenerator.NextDouble() - 0.5) * 10, (RandomGenerator.NextDouble() - 0.5) * 10));
         //TUTAJ DODAJE KOLIZJE
@@ -117,10 +117,10 @@ namespace TP.ConcurrentProgramming.Data
 //ŁUBUDUBU W ŚCIANE PYK PYK
     private void ResolveBallCollision(Ball a, Ball b)
     {
-      double ax = a.PositionInternal.x + a.RadiusInternal;
-      double ay = a.PositionInternal.y + a.RadiusInternal;
-      double bx = b.PositionInternal.x + a.RadiusInternal;
-      double by = b.PositionInternal.y + b.RadiusInternal;
+      /*double ax = a.PositionInternal.x;
+      double ay = a.PositionInternal.y;
+      double bx = b.PositionInternal.x;
+      double by = b.PositionInternal.y;
 
       double dx = bx - ax;
       double dy = by - ay;
@@ -154,7 +154,70 @@ namespace TP.ConcurrentProgramming.Data
       double vbNnew = (vbN*(mb-ma)+2*ma*vaN)/(ma+mb);
 
       a.Velocity = new Vector(vax + (vaNnew - vaN)*nx, vay + (vaNnew - vaN)*ny);
-      b.Velocity = new Vector(vbx + (vbNnew - vbN)*nx, vby + (vbNnew - vbN)*ny);
+      b.Velocity = new Vector(vbx + (vbNnew - vbN)*nx, vby + (vbNnew - vbN)*ny);*/
+
+      
+      Vector pa = a.PositionInternal;
+      Vector pb = b.PositionInternal;
+
+      Vector va = (Vector)a.Velocity;
+      Vector vb = (Vector)b.Velocity;
+
+      double dx = pb.x - pa.x;
+      double dy = pb.y - pa.y;
+
+      double distance = Math.Sqrt(dx * dx + dy * dy);
+      double minDist = a.RadiusInternal + b.RadiusInternal;
+
+      if (distance <= 0 || distance >= minDist)
+          return;
+
+      // normalna
+      double nx = dx / distance;
+      double ny = dy / distance;
+
+      // prędkość względna wzdłuż normalnej
+      double rv =
+          (vb.x - va.x) * nx +
+          (vb.y - va.y) * ny;
+
+      // JEŚLI NIE ZBLIŻAJĄ SIĘ – NIC NIE RÓB
+      if (rv > 0)
+          return;
+
+      // --- SEPARACJA POZYCJI ---
+      double penetration = minDist - distance;
+      double correction = penetration / 2.0;
+
+      a.PositionInternal = new Vector(
+          pa.x - correction * nx,
+          pa.y - correction * ny
+      );
+
+      b.PositionInternal = new Vector(
+          pb.x + correction * nx,
+          pb.y + correction * ny
+      );
+
+      // --- IMPULS KOLIZYJNY ---
+      double restitution = 0.9; // <= KLUCZ DO STABILNOŚCI
+
+      double j = -(1 + restitution) * rv;
+      j /= (1 / a.Mass + 1 / b.Mass);
+
+      Vector impulse = new Vector(j * nx, j * ny);
+
+      a.Velocity = new Vector(
+          va.x - impulse.x / a.Mass,
+          va.y - impulse.y / a.Mass
+      );
+
+      b.Velocity = new Vector(
+          vb.x + impulse.x / b.Mass,
+          vb.y + impulse.y / b.Mass
+      );
+
+
     }
 
     private void ResolveWallCollision(Ball ball)
@@ -165,35 +228,37 @@ namespace TP.ConcurrentProgramming.Data
       Vector pos = ball.PositionInternal;
       Vector vel = (Vector)ball.Velocity;
 
+      Vector nextPos = new Vector(pos.x + vel.x, pos.y + vel.y);
+
 //LEWA ŚCIANA
-      if(pos.x - ball.RadiusInternal < 0)
+      if(nextPos.x - ball.RadiusInternal < 0)
       {
-        pos = new Vector(ball.RadiusInternal, pos.y);
+        nextPos = new Vector(ball.RadiusInternal, nextPos.y);
         vel = Reflect(vel, new Vector(1, 0));
       }
 
 // PRAWA ŚCIANA
-      if (pos.x + ball.RadiusInternal > Width)
+      if (nextPos.x + ball.RadiusInternal > Width)
       {
-        pos = new Vector(Width-ball.RadiusInternal, pos.y);
+        nextPos = new Vector(Width-ball.RadiusInternal, nextPos.y);
         vel = Reflect(vel, new Vector(-1,0));
       }
 
 //GÓRNA ŚCIANA
-      if (pos.y - ball.RadiusInternal < 0)
+      if (nextPos.y - ball.RadiusInternal < 0)
       {
-        pos = new Vector(pos.x, ball.RadiusInternal);
+        nextPos = new Vector(nextPos.x, ball.RadiusInternal);
         vel = Reflect(vel, new Vector(0,1));
       }
 
 //DOLNA ŚCIANA
-      if (pos.y + ball.RadiusInternal > Height)
+      if (nextPos.y + ball.RadiusInternal > Height)
       {
-        pos = new Vector(pos.x, Height - ball.RadiusInternal);
+        nextPos = new Vector(nextPos.x, Height - ball.RadiusInternal);
         vel = Reflect(vel, new Vector(0,-1));
       }
 
-      ball.PositionInternal = pos;
+      ball.PositionInternal = nextPos;
       ball.Velocity = vel;
 
     }

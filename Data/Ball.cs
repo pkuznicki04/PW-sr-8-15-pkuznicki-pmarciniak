@@ -41,7 +41,11 @@ namespace TP.ConcurrentProgramming.Data
     internal Vector PositionInternal
     {
       get => Position;
-      set => Position = value;
+      set
+      {
+        Position = value;
+        RaiseNewPositionChangeNotification();
+      }
     }
 
     internal double RadiusInternal => Radius;
