@@ -172,20 +172,17 @@ namespace TP.ConcurrentProgramming.Data
       if (distance <= 0 || distance >= minDist)
           return;
 
-      // normalna
       double nx = dx / distance;
       double ny = dy / distance;
 
-      // prędkość względna wzdłuż normalnej
       double rv =
           (vb.x - va.x) * nx +
           (vb.y - va.y) * ny;
 
-      // JEŚLI NIE ZBLIŻAJĄ SIĘ – NIC NIE RÓB
       if (rv > 0)
           return;
 
-      // --- SEPARACJA POZYCJI ---
+      
       double penetration = minDist - distance;
       double correction = penetration / 2.0;
 
@@ -199,8 +196,8 @@ namespace TP.ConcurrentProgramming.Data
           pb.y + correction * ny
       );
 
-      // --- IMPULS KOLIZYJNY ---
-      double restitution = 0.9; // <= KLUCZ DO STABILNOŚCI
+      
+      double restitution = 0.9; 
 
       double j = -(1 + restitution) * rv;
       j /= (1 / a.Mass + 1 / b.Mass);
