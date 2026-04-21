@@ -65,12 +65,12 @@ namespace TP.ConcurrentProgramming.Data
       NewPositionNotification?.Invoke(this, Position);
     }
 //TUTAJ ZMIANY!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-> ograniczenie ruchu do boarda
-    internal void Move(Vector delta)
+    /*internal void Move(Vector delta)
     {
       /*Position = new Vector(Position.x + delta.x, Position.y + delta.y);
       RaiseNewPositionChangeNotification();
       */
-
+/*
       double newX = Position.x + delta.x;
       double newY = Position.y + delta.y;
 
@@ -88,6 +88,7 @@ namespace TP.ConcurrentProgramming.Data
         dy = -dy;  
 */
 //LEWA
+/*
       if (newX < 0)
       {
         newX = 0;
@@ -119,7 +120,7 @@ namespace TP.ConcurrentProgramming.Data
       Position = new Vector(newX, newY);
       RaiseNewPositionChangeNotification();
     }
-
+*/
     #endregion private
   }
 }

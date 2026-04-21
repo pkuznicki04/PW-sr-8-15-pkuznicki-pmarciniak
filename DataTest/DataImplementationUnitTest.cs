@@ -67,5 +67,50 @@ namespace TP.ConcurrentProgramming.Data.Test
         newInstance.CheckNumberOfBalls(x => Assert.AreEqual<int>(10, x));
       }
     }
+
+    [TestMethod]
+      public void BallPositionChangesOverTime()
+      {
+          using var data = new DataImplementation();
+
+          IVector? first = null;
+          IVector? second = null;
+
+          data.Start(1, 20.0, (pos, ball) =>
+          {
+              ball.NewPositionNotification += (_, p) =>
+              {
+                  if (first == null)
+                      first = p;
+                  else
+                      second = p;
+              };
+          });
+
+          Thread.Sleep(50);
+
+          Assert.IsNotNull(first);
+          Assert.IsNotNull(second);
+          Assert.AreNotEqual(first!.x, second!.x);
+      }
+
+[TestMethod]
+        public void BallStaysInsideBoard()
+        {
+            using var data = new DataImplementation();
+
+            IVector? last = null;
+
+            data.Start(1, 20.0, (pos, ball) =>
+            {
+                ball.NewPositionNotification += (_, p) => last = p;
+            });
+
+            Thread.Sleep(200);
+
+            Assert.IsNotNull(last);
+            Assert.IsTrue(last!.x >= 0 && last.x <= 400);
+            Assert.IsTrue(last.y >= 0 && last.y <= 420);
+        }
   }
 }
