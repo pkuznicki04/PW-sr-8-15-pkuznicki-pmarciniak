@@ -11,7 +11,7 @@
 using TP.ConcurrentProgramming.BusinessLogic;
 
 namespace TP.ConcurrentProgramming.Presentation.Model.Test
-{/*
+{
   [TestClass]
   public class PresentationModelUnitTest
   {
@@ -42,7 +42,7 @@ namespace TP.ConcurrentProgramming.Presentation.Model.Test
         newInstance.CheckBallChangedEvent(x => Assert.IsTrue(x));
         IDisposable subscription = newInstance.Subscribe(x => { });
         newInstance.CheckBallChangedEvent(x => Assert.IsFalse(x));
-        newInstance.Start(10);
+        newInstance.Start(10, 20.0);
         Assert.AreEqual<int>(10, underneathLayerFixture.NumberOfBalls);
         subscription.Dispose();
         newInstance.CheckBallChangedEvent(x => Assert.IsTrue(x));
@@ -67,7 +67,7 @@ namespace TP.ConcurrentProgramming.Presentation.Model.Test
         Disposed = true;
       }
 
-      public override void Start(int numberOfBalls, Action<IPosition, BusinessLogic.IBall> upperLayerHandler)
+      public override void Start(int numberOfBalls, double Diameter, Action<IPosition, BusinessLogic.IBall> upperLayerHandler)
       {
         NumberOfBalls = numberOfBalls;
         Assert.IsNotNull(upperLayerHandler);
@@ -77,5 +77,5 @@ namespace TP.ConcurrentProgramming.Presentation.Model.Test
     }
 
     #endregion testing instrumentation
-  }*/
+  }
 }

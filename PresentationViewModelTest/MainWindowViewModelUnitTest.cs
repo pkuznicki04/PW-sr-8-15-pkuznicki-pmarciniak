@@ -16,7 +16,7 @@ using TP.ConcurrentProgramming.Presentation.Model;
 using ModelIBall = TP.ConcurrentProgramming.Presentation.Model.IBall;
 
 namespace TP.ConcurrentProgramming.Presentation.ViewModel.Test
-{/*
+{
   [TestClass]
   public class MainWindowViewModelUnitTest
   {
@@ -31,7 +31,8 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel.Test
       {
         Random random = new Random();
         int numberOfBalls = random.Next(1, 10);
-        viewModel.Start(numberOfBalls);
+        viewModel.Diameter = 20.0;
+        viewModel.Start();
         Assert.IsNotNull(viewModel.Balls);
         Assert.AreEqual<int>(0, nullModelFixture.Disposed);
         Assert.AreEqual<int>(numberOfBalls, nullModelFixture.Started);
@@ -49,7 +50,9 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel.Test
       Assert.AreEqual<int>(0, viewModel.Balls.Count);
       Random random = new Random();
       int numberOfBalls = random.Next(1, 10);
-      viewModel.Start(numberOfBalls);
+      viewModel.NumberOfBalls = numberOfBalls;
+      viewModel.Diameter=20.0;
+      viewModel.Start();
       Assert.AreEqual<int>(numberOfBalls, viewModel.Balls.Count);
       viewModel.Dispose();
       Assert.IsTrue(modelSimulator.Disposed);
@@ -75,7 +78,7 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel.Test
         Disposed++;
       }
 
-      public override void Start(int numberOfBalls)
+      public override void Start(int numberOfBalls, double Diameter)
       {
         Started = numberOfBalls;
       }
@@ -123,7 +126,7 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel.Test
         return eventObservable?.Subscribe(x => observer.OnNext(x.EventArgs.Ball), ex => observer.OnError(ex), () => observer.OnCompleted());
       }
 
-      public override void Start(int numberOfBalls)
+      public override void Start(int numberOfBalls, double Diameter)
       {
         for (int i = 0; i < numberOfBalls; i++)
         {
@@ -175,5 +178,5 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel.Test
     }
 
     #endregion testing infrastructure
-  }*/
+  }
 }
