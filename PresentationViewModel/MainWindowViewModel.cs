@@ -43,17 +43,14 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
       get =>_numberOfBalls;
       set
       {
-        _numberOfBalls = value;
-        if (_numberOfBalls < 5)
+        //Wartość miedzy 0 a 100
+        int newValue = Math.Max(0, value);
+
+        if (_numberOfBalls != newValue)
         {
-          _numberOfBalls =5;
+          _numberOfBalls = newValue;
+          RaisePropertyChanged();
         }
-        if (_numberOfBalls > 10)
-        {
-          _numberOfBalls = 10;
-        }
-        
-        RaisePropertyChanged();
       }
     }
 
@@ -67,15 +64,6 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
         throw new ObjectDisposedException(nameof(MainWindowViewModel));
 
       Balls.Clear();
-/*
-      if (NumberOfBalls < 5)
-      {
-        NumberOfBalls=5;
-      }
-      if (NumberOfBalls > 10)
-      {
-        NumberOfBalls = 10;
-      }*/
 
       ModelLayer.Start(NumberOfBalls, Diameter);
       //Observer.Dispose();

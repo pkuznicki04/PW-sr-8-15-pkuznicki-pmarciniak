@@ -34,21 +34,32 @@ namespace TP.ConcurrentProgramming.Data
       if (upperLayerHandler == null)
         throw new ArgumentNullException(nameof(upperLayerHandler));
 
-      Radius = Diameter / 2.0;
-      Random random = new Random(); 
-      for (int i = 0; i < numberOfBalls; i++)
+      //TMP -- Zmienić na poprawne Start / Stop dla timera
+      MoveTimer.Change(Timeout.Infinite, Timeout.Infinite);
+
+      lock (Lock)
       {
+        List<Ball> NewList = [];
+
+        Radius = Diameter / 2.0;
+        Random random = new Random();
+            
+        for (int i = 0; i < numberOfBalls; i++)
+        {
         //TUTAJ ZMIANY DO PŁYNNOŚCI RUCHU!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         //Vector startingPosition = new(random.Next(100, 400 - 100), random.Next(100, 400 - 100));
-        Vector startingPosition = new(random.Next(100, 300), random.Next(100, 300));
+          Vector startingPosition = new(random.Next(100, 300), random.Next(100, 300));
 
-        Vector velocity = new((RandomGenerator.NextDouble()-0.5)*2, (RandomGenerator.NextDouble() -0.5)*2);
+          Vector velocity = new((RandomGenerator.NextDouble()-0.5)*2, (RandomGenerator.NextDouble() -0.5)*2);
         //Ball newBall = new(startingPosition, startingPosition);
 
-        Ball newBall = new(startingPosition, velocity, Radius);
-        upperLayerHandler(startingPosition, newBall);
-        BallsList.Add(newBall);
+          Ball newBall = new(startingPosition, velocity, Radius);
+          upperLayerHandler(startingPosition, newBall);
+          NewList.Add(newBall);
+        }
+        BallsList = NewList;
       }
+      MoveTimer.Change(0, 16);
     }
 
     #endregion DataAbstractAPI
@@ -90,24 +101,30 @@ namespace TP.ConcurrentProgramming.Data
     private Random RandomGenerator = new();
     private List<Ball> BallsList = [];
 
+    private readonly object Lock = new object();
+
 
 //TUTAJ OKREŚLAMY RUCH!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     private void Move(object? x)
     {
-      foreach (Ball item in BallsList)
+      //foreach (Ball item in BallsList.ToList())
         //item.Move((Vector)item.Velocity);
       //TUTAJ ZMIENIAM BYŁO 0.5 NIE 0.1
         //item.Move(new Vector((RandomGenerator.NextDouble() - 0.5) * 10, (RandomGenerator.NextDouble() - 0.5) * 10));
         //TUTAJ DODAJE KOLIZJE
-        for (int i = 0; i < BallsList.Count; i++)
+
+      var LocalList = BallsList;
+      
+      for (int i = 0; i < LocalList.Count; i++)
       {
-        for (int j = i + 1; j < BallsList.Count; j++)
+
+        for (int j = i + 1; j < LocalList.Count; j++)
         {
-          ResolveBallCollision(BallsList[i], BallsList[j]);
+          ResolveBallCollision(LocalList[i], LocalList[j]);
         }
       }
 
-        foreach (Ball item in BallsList)
+        foreach (Ball item in LocalList)
       {
         ResolveWallCollision(item);
       }
