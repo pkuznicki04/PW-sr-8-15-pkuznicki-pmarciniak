@@ -60,3 +60,6 @@ dkms.conf
 
 #sln
 *.sln
+
+# IDE
+.vs
