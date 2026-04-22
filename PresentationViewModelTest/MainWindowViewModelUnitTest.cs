@@ -30,7 +30,8 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel.Test
       using (MainWindowViewModel viewModel = new(nullModelFixture))
       {
         Random random = new Random();
-        int numberOfBalls = random.Next(1, 10);
+        int numberOfBalls = random.Next(5, 10);
+        viewModel.NumberOfBalls = numberOfBalls;
         viewModel.Diameter = 20.0;
         viewModel.Start();
         Assert.IsNotNull(viewModel.Balls);
@@ -49,7 +50,7 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel.Test
       Assert.IsNotNull(viewModel.Balls);
       Assert.AreEqual<int>(0, viewModel.Balls.Count);
       Random random = new Random();
-      int numberOfBalls = random.Next(1, 10);
+      int numberOfBalls = random.Next(5, 10);
       viewModel.NumberOfBalls = numberOfBalls;
       viewModel.Diameter=20.0;
       viewModel.Start();
