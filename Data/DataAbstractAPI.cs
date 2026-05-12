@@ -59,4 +59,12 @@ namespace TP.ConcurrentProgramming.Data
 
     IVector Velocity { get; set; }
   }
+
+  public interface IBinaryTree
+  {
+    internal Ball Ball { get; set; }
+
+    internal BinaryTree BinaryTreeLeft {  get; set; }
+    internal BinaryTree BinaryTreeRight {  get; set; }
+  }
 }

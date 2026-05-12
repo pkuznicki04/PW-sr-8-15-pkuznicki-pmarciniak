@@ -104,6 +104,7 @@ namespace TP.ConcurrentProgramming.Data
     private readonly Stopwatch stopwatch;
     private Random RandomGenerator = new();
     private List<Ball> BallsList = [];
+    private BinaryTree binaryTree;
 
     private readonly object Lock = new object();
 
@@ -111,45 +112,84 @@ namespace TP.ConcurrentProgramming.Data
 //TUTAJ OKREŚLAMY RUCH!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     private void Move(object? x)
     {
-      //foreach (Ball item in BallsList.ToList())
-        //item.Move((Vector)item.Velocity);
-      //TUTAJ ZMIENIAM BYŁO 0.5 NIE 0.1
-        //item.Move(new Vector((RandomGenerator.NextDouble() - 0.5) * 10, (RandomGenerator.NextDouble() - 0.5) * 10));
-        //TUTAJ DODAJE KOLIZJE
-
       var LocalList = BallsList;
-      
+
+      /*
+      //Sprawdzamy czy lista ma niezerowa dlugosc
+      if(LocalList.Count != 0)
+      {
+        binaryTree = new(LocalList[0]);
+      }
+
+      //Tworzymy drzewo binarne
+      for (int i = 1; i < LocalList.Count; i++)
+      {
+        BinaryTree currentNode = binaryTree;
+        while (true)
+        {
+          if(LocalList[i].PositionInternal.x < currentNode.Ball.PositionInternal.x)
+          {
+            if(currentNode.BinaryTreeLeft != null)
+            {
+              currentNode = currentNode.BinaryTreeLeft;
+            }
+            else
+            {
+              currentNode.BinaryTreeLeft = new(LocalList[i]);
+              break;
+            }
+          }
+          else
+          {
+            if (currentNode.BinaryTreeRight != null)
+            {
+              currentNode = currentNode.BinaryTreeRight;
+            }
+            else
+            {
+              currentNode.BinaryTreeRight = new(LocalList[i]);
+              break;
+            }
+          }
+        }
+      }*/
+
+      //Wykonujemy ruch dla wszystkich obiektow
+      /*for (int i = 0; i < LocalList.Count; i++)
+      {
+        ResolveWallCollision(LocalList[i]);
+        BinaryTree currentNode = binaryTree;
+        for (; ; )
+        {
+          if ((LocalList[i].RadiusInternal + currentNode.Ball.RadiusInternal) < Math.Abs(currentNode.Ball.PositionInternal.x - LocalList[i].PositionInternal.x))
+          {
+            ResolveBallCollision(LocalList[i], currentNode.Ball);
+            break;
+          }
+          else
+          {
+            if (LocalList[i].PositionInternal.x < currentNode.Ball.PositionInternal.x)
+            {
+            
+            }
+          }
+        }
+      }*/
       for (int i = 0; i < LocalList.Count; i++)
       {
         ResolveWallCollision(LocalList[i]);
-        for (int j = i + 1; j < LocalList.Count; j++)
+        for (int j = i+1; j < LocalList.Count; j++)
         {
           ResolveBallCollision(LocalList[i], LocalList[j]);
         }
       }
-
-      /*foreach (Ball ball in LocalList)
-      {
-        ResolveWallCollision(ball);
-        //item.Move();
-        foreach (Ball collisionBall in LocalList)
-        {
-
-        }
-      }*/
     }
-//ŁUBUDUBU W ŚCIANE PYK PYK
+
     private void ResolveBallCollision(Ball a, Ball b)
     {
-      /*double ax = a.PositionInternal.x;
-      double ay = a.PositionInternal.y;
-      double bx = b.PositionInternal.x;
-      double by = b.PositionInternal.y;
-
-      double dx = bx - ax;
-      double dy = by - ay;
-
-      double distance = Math.Sqrt(dx*dx + dy*dy);
+      double dx = a.PositionInternal.x - b.PositionInternal.x;
+      double dy = a.PositionInternal.y - b.PositionInternal.y;
+      double distance = Math.Sqrt(dx * dx + dy * dy);
       double minDistance = a.RadiusInternal + b.RadiusInternal;
 
       if (distance <= 0 || distance >= minDistance)
@@ -158,87 +198,25 @@ namespace TP.ConcurrentProgramming.Data
       double nx = dx / distance;
       double ny = dy / distance;
 
-      double overlap = minDistance - distance;
+      double dvx = a.Velocity.x - b.Velocity.x;
+      double dvy = a.Velocity.y - b.Velocity.y;
 
-      a.PositionInternal = new Vector(a.PositionInternal.x - nx*overlap/2.0, a.PositionInternal.y + ny*overlap/2.0);
-      b.PositionInternal = new Vector(b.PositionInternal.x - nx*overlap/2.0, b.PositionInternal.y + ny*overlap/2.0);
+      //jesli sie oddalaja
+      double velocityAlongNormal = dvx * nx + dvy * ny;
+      if (velocityAlongNormal > 0)
+        return;
 
-      double vax = a.Velocity.x;
-      double vay = a.Velocity.y;
-      double vbx = b.Velocity.x;
-      double vby = b.Velocity.y;
+      double impulse = (2 * velocityAlongNormal) / (a.Mass + b.Mass);
 
-      double vaN = vax*nx+vay*ny;
-      double vbN = vbx*nx+vby*ny;
+      Vector newVelocityA = new Vector(
+        a.Velocity.x - impulse * b.Mass * nx,
+        a.Velocity.y - impulse * b.Mass * ny);
+      Vector newVelocityB = new Vector(
+        b.Velocity.x + impulse * a.Mass * nx,
+        b.Velocity.y + impulse * a.Mass * ny);
 
-      double ma = a.Mass;
-      double mb = b.Mass;
-
-      double vaNnew = (vaN*(ma-mb)+2*mb*vbN)/(ma+mb);
-      double vbNnew = (vbN*(mb-ma)+2*ma*vaN)/(ma+mb);
-
-      a.Velocity = new Vector(vax + (vaNnew - vaN)*nx, vay + (vaNnew - vaN)*ny);
-      b.Velocity = new Vector(vbx + (vbNnew - vbN)*nx, vby + (vbNnew - vbN)*ny);*/
-
-      
-      Vector pa = a.PositionInternal;
-      Vector pb = b.PositionInternal;
-
-      Vector va = (Vector)a.Velocity;
-      Vector vb = (Vector)b.Velocity;
-
-      double dx = pb.x - pa.x;
-      double dy = pb.y - pa.y;
-
-      double distance = Math.Sqrt(dx * dx + dy * dy);
-      double minDist = a.RadiusInternal + b.RadiusInternal;
-
-      if (distance <= 0 || distance >= minDist)
-          return;
-
-      double nx = dx / distance;
-      double ny = dy / distance;
-
-      double rv =
-          (vb.x - va.x) * nx +
-          (vb.y - va.y) * ny;
-
-      if (rv > 0)
-          return;
-
-      
-      double penetration = minDist - distance;
-      double correction = penetration / 2.0;
-
-      a.PositionInternal = new Vector(
-          pa.x - correction * nx,
-          pa.y - correction * ny
-      );
-
-      b.PositionInternal = new Vector(
-          pb.x + correction * nx,
-          pb.y + correction * ny
-      );
-
-      
-      double restitution = 0.9; 
-
-      double j = -(1 + restitution) * rv;
-      j /= (1 / a.Mass + 1 / b.Mass);
-
-      Vector impulse = new Vector(j * nx, j * ny);
-
-      a.Velocity = new Vector(
-          va.x - impulse.x / a.Mass,
-          va.y - impulse.y / a.Mass
-      );
-
-      b.Velocity = new Vector(
-          vb.x + impulse.x / b.Mass,
-          vb.y + impulse.y / b.Mass
-      );
-
-
+      a.Velocity = newVelocityA;
+      b.Velocity = newVelocityB;      
     }
 
     private void ResolveWallCollision(Ball ball)
