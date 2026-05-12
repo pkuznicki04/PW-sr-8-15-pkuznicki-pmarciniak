@@ -43,8 +43,9 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
       get =>_numberOfBalls;
       set
       {
-        //Wartość miedzy 0 a 100
+        //Wartość miedzy 0 a 300
         int newValue = Math.Max(0, value);
+        newValue = Math.Min(300, newValue);
 
         if (_numberOfBalls != newValue)
         {
