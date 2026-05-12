@@ -21,6 +21,7 @@ namespace TP.ConcurrentProgramming.Data
     public DataImplementation()
     {
       MoveTimer = new Timer(Move, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(16));
+      stopwatch = new Stopwatch();
     }
 
     #endregion ctor
@@ -36,6 +37,7 @@ namespace TP.ConcurrentProgramming.Data
 
       //TMP -- Zmienić na poprawne Start / Stop dla timera
       MoveTimer.Change(Timeout.Infinite, Timeout.Infinite);
+      stopwatch.Stop();
 
       lock (Lock)
       {
@@ -50,7 +52,7 @@ namespace TP.ConcurrentProgramming.Data
         //Vector startingPosition = new(random.Next(100, 400 - 100), random.Next(100, 400 - 100));
           Vector startingPosition = new(random.Next(100, 300), random.Next(100, 300));
 
-          Vector velocity = new((RandomGenerator.NextDouble()-0.5)*2, (RandomGenerator.NextDouble() -0.5)*2);
+          Vector velocity = new((RandomGenerator.NextDouble()-0.5)*2*1, (RandomGenerator.NextDouble() -0.5)*2*1);
         //Ball newBall = new(startingPosition, startingPosition);
 
           Ball newBall = new(startingPosition, velocity, Radius);
@@ -60,6 +62,7 @@ namespace TP.ConcurrentProgramming.Data
         BallsList = NewList;
       }
       MoveTimer.Change(0, 16);
+      stopwatch.Start();
     }
 
     #endregion DataAbstractAPI
@@ -98,6 +101,7 @@ namespace TP.ConcurrentProgramming.Data
     private double Radius;
 
     private readonly Timer MoveTimer;
+    private readonly Stopwatch stopwatch;
     private Random RandomGenerator = new();
     private List<Ball> BallsList = [];
 
@@ -117,19 +121,22 @@ namespace TP.ConcurrentProgramming.Data
       
       for (int i = 0; i < LocalList.Count; i++)
       {
-
+        ResolveWallCollision(LocalList[i]);
         for (int j = i + 1; j < LocalList.Count; j++)
         {
           ResolveBallCollision(LocalList[i], LocalList[j]);
         }
       }
 
-        foreach (Ball item in LocalList)
+      /*foreach (Ball ball in LocalList)
       {
-        ResolveWallCollision(item);
-      }
+        ResolveWallCollision(ball);
+        //item.Move();
+        foreach (Ball collisionBall in LocalList)
+        {
 
-
+        }
+      }*/
     }
 //ŁUBUDUBU W ŚCIANE PYK PYK
     private void ResolveBallCollision(Ball a, Ball b)
@@ -239,42 +246,45 @@ namespace TP.ConcurrentProgramming.Data
       const double Width = 400;
       const double Height = 420;
 
+      double Time = stopwatch.Elapsed.TotalSeconds;
+      double deltaTime = Time - ball.Time;
+
+      Vector bordersPositionLeftTop = new Vector( 0 + ball.RadiusInternal, 0 + ball.RadiusInternal);
+      Vector bordersPositionRightBottom = new Vector( Width - ball.RadiusInternal, Height - ball.RadiusInternal);
+      Vector bordersSize = bordersPositionRightBottom - bordersPositionLeftTop;
+
       Vector pos = ball.PositionInternal;
       Vector vel = (Vector)ball.Velocity;
 
-      Vector nextPos = new Vector(pos.x + vel.x, pos.y + vel.y);
-
-//LEWA ŚCIANA
-      if(nextPos.x - ball.RadiusInternal < 0)
+      Vector nextPos = new Vector(pos.x - bordersPositionLeftTop.x + (vel.x * deltaTime * 100), pos.y - bordersPositionLeftTop.y + (vel.y * deltaTime * 100));
+      
+      if(nextPos.x <= 0)
       {
-        nextPos = new Vector(ball.RadiusInternal, nextPos.y);
-        vel = Reflect(vel, new Vector(1, 0));
+        vel.Set(-vel.x, vel.y);
+      }
+      if(nextPos.y <= 0)
+      {
+        vel.Set(vel.x, -vel.y);
       }
 
-// PRAWA ŚCIANA
-      if (nextPos.x + ball.RadiusInternal > Width)
+      nextPos.Set(Math.Abs(nextPos.x) % (2 * bordersSize.x), Math.Abs(nextPos.y) % (2 * bordersSize.y));
+
+      if(nextPos.x > bordersSize.x)
       {
-        nextPos = new Vector(Width-ball.RadiusInternal, nextPos.y);
-        vel = Reflect(vel, new Vector(-1,0));
+        nextPos.Set(bordersSize.x - (nextPos.x - bordersSize.x), nextPos.y);
+        vel.Set(-vel.x, vel.y);
+      }
+      if(nextPos.y > bordersSize.y)
+      {
+        nextPos.Set(nextPos.x, bordersSize.y - (nextPos.y - bordersSize.y));
+        vel.Set(vel.x, -vel.y);
       }
 
-//GÓRNA ŚCIANA
-      if (nextPos.y - ball.RadiusInternal < 0)
-      {
-        nextPos = new Vector(nextPos.x, ball.RadiusInternal);
-        vel = Reflect(vel, new Vector(0,1));
-      }
+      nextPos.Add(bordersPositionLeftTop);
 
-//DOLNA ŚCIANA
-      if (nextPos.y + ball.RadiusInternal > Height)
-      {
-        nextPos = new Vector(nextPos.x, Height - ball.RadiusInternal);
-        vel = Reflect(vel, new Vector(0,-1));
-      }
-
-      ball.PositionInternal = nextPos;
       ball.Velocity = vel;
-
+      ball.Time = Time;
+      ball.Move(nextPos - pos);
     }
 
     private static Vector Reflect(Vector v, Vector n)

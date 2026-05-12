@@ -23,11 +23,11 @@ namespace TP.ConcurrentProgramming.Data
     /// <summary>
     /// The X component of the vector.
     /// </summary>
-    public double x { get; init; }
+    public double x { get; private set; }
     /// <summary>
     /// The Y component of the vector.
     /// </summary>
-    public double y { get; init; }
+    public double y { get; private set; }
 
     public double Length => Math.Sqrt(x*x+y*y);
     public Vector Normalize()
@@ -37,6 +37,17 @@ namespace TP.ConcurrentProgramming.Data
         return new Vector(0, 0);
 
       return new Vector(x/len, y/len);
+    }
+
+    public void Set(double XComponent, double YComponent)
+    {
+      x = XComponent;
+      y = YComponent;
+    }
+
+    public static Vector operator *(Vector v, Vector scalar)
+    {
+      return new Vector(v.x * scalar.x, v.y * scalar.y);
     }
 
     public static Vector operator *(double scalar, Vector v)
@@ -54,9 +65,10 @@ namespace TP.ConcurrentProgramming.Data
       return new Vector(a.x-b.x, a.y-b.y);
     }
 
-    public Vector Add(Vector other)
+    public void Add(Vector other)
     {
-      return new Vector(x+other.x, y+other.y);
+      this.x += other.x; 
+      this.y += other.y;
     }
 
     #endregion IVector
