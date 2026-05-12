@@ -63,7 +63,8 @@ namespace TP.ConcurrentProgramming.Data.Test
           Vector a = new Vector(1, 2);
           Vector b = new Vector(3, 4);
 
-          Vector result = a.Add(b);
+          a.Add(b);
+          Vector result = a;
 
           Assert.AreEqual(4.0, result.x);
           Assert.AreEqual(6.0, result.y);
@@ -77,9 +78,62 @@ namespace TP.ConcurrentProgramming.Data.Test
 
           Assert.AreEqual(1.0, n.Length, 1e-9);
       }
+
+    [TestMethod]
+    public void OperatorMinus_ReturnsCorrect()
+    {
+      Vector a = new Vector(1, 2);
+      Vector b = new Vector(3, 4);
+
+      Vector result = a - b;
+
+      Assert.AreEqual(-2.0, result.x);
+      Assert.AreEqual(-2.0, result.y);
+    }
+    [TestMethod]
+    public void OperatorMultiply_ReturnsCorrect()
+    {
+      Vector a = new Vector(1, 2);
+      Vector b = new Vector(3, 4);
+      double scalar = 5;
+
+      Vector result = a * b;
+
+      Assert.AreEqual(3.0, result.x);
+      Assert.AreEqual(8.0, result.y);
+
+      result = a * scalar;
+
+      Assert.AreEqual(5.0, result.x);
+      Assert.AreEqual(10.0, result.y);
+
+      result = scalar * a;
+
+      Assert.AreEqual(5.0, result.x);
+      Assert.AreEqual(10.0, result.y);
+    }
+
+    [TestMethod]
+    public void Set_WorksCorrectly()
+    {
+      Vector a = new Vector(1, 2);
+      double x = 10;
+      double y = 5;
+
+      a.Set(x, y);
+
+      Assert.AreEqual(x, a.x);
+      Assert.AreEqual(y, a.y);
+    }
+    
+    [TestMethod]
+    public void Length_WorksCorrectly()
+    {
+      Vector a = new Vector(4, 3);
+
+      double result = a.Length;
+
+      Assert.AreEqual(5.0, result);
+    }
   }
-
-      
-
-  
 }

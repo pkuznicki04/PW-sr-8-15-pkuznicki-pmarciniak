@@ -69,48 +69,71 @@ namespace TP.ConcurrentProgramming.Data.Test
     }
 
     [TestMethod]
-      public void BallPositionChangesOverTime()
+    public void BallPositionChangesOverTime()
+    {
+      using var data = new DataImplementation();
+
+      IVector? first = null;
+      IVector? second = null;
+
+      data.Start(1, 20.0, (pos, ball) =>
       {
-          using var data = new DataImplementation();
-
-          IVector? first = null;
-          IVector? second = null;
-
-          data.Start(1, 20.0, (pos, ball) =>
-          {
-              ball.NewPositionNotification += (_, p) =>
-              {
-                  if (first == null)
-                      first = p;
-                  else
-                      second = p;
-              };
-          });
-
-          Thread.Sleep(50);
-
-          Assert.IsNotNull(first);
-          Assert.IsNotNull(second);
-          Assert.AreNotEqual(first!.x, second!.x);
-      }
-
-[TestMethod]
-        public void BallStaysInsideBoard()
-        {
-            using var data = new DataImplementation();
-
-            IVector? last = null;
-
-            data.Start(1, 20.0, (pos, ball) =>
+        ball.NewPositionNotification += (_, p) =>
             {
-                ball.NewPositionNotification += (_, p) => last = p;
-            });
+            if (first == null)
+              first = p;
+            else
+              second = p;
+          };
+      });
 
-            Thread.Sleep(200);
+      Thread.Sleep(50);
 
-            Assert.IsNotNull(last);
-            Assert.IsTrue(last!.x >= 0 && last.x <= 400);
-            Assert.IsTrue(last.y >= 0 && last.y <= 420);
-        }
+      Assert.IsNotNull(first);
+      Assert.IsNotNull(second);
+      Assert.AreNotEqual(first!.x, second!.x);
+    }
+
+    [TestMethod]
+    public void BallStaysInsideBoard()
+    {
+      using var data = new DataImplementation();
+
+      IVector? last = null;
+
+      data.Start(1, 20.0, (pos, ball) =>
+      {
+        ball.NewPositionNotification += (_, p) => last = p;
+      });
+
+      Thread.Sleep(200);
+
+      Assert.IsNotNull(last);
+      Assert.IsTrue(last!.x >= 0 && last.x <= 400);
+      Assert.IsTrue(last.y >= 0 && last.y <= 420);
+    }
+
+    [TestMethod]
+    public void BallPositionUpdatesOverTime()
+    {
+      using var data = new DataImplementation();
+      int numberOfCallbackInvoked = 0;
+      int numberOfBalls = 300;
+
+      data.Start(numberOfBalls, 20.0, (pos, ball) =>
+      {
+        ball.NewPositionNotification += (_, __) =>
+        {
+          Interlocked.Increment(ref numberOfCallbackInvoked);
+        };
+      });
+
+      int waitTime_ms = 10000;
+      int repetitionTime = 16;
+      int numberOfRepetition = waitTime_ms / repetitionTime;
+      Thread.Sleep(numberOfRepetition * repetitionTime);
+
+      Assert.AreEqual(numberOfBalls * numberOfRepetition, numberOfCallbackInvoked, numberOfBalls);
+    }
   }
 }
