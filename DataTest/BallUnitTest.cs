@@ -34,7 +34,7 @@ namespace TP.ConcurrentProgramming.Data.Test
       int numberOfCallBackCalled = 0;
 
       newInstance.NewPositionNotification += (sender, position) => { Assert.IsNotNull(sender); curentPosition = position; numberOfCallBackCalled++; };
-      newInstance.Move(new Vector(0.0, 0.0));
+      newInstance.Move(0);
       Assert.AreEqual<int>(1, numberOfCallBackCalled);
       Assert.AreEqual<IVector>(initialPosition, curentPosition);
     }

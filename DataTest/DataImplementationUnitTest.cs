@@ -135,5 +135,47 @@ namespace TP.ConcurrentProgramming.Data.Test
 
       Assert.AreEqual(numberOfBalls * numberOfRepetition, numberOfCallbackInvoked, numberOfBalls);
     }
+
+    [TestMethod]
+    public void BallCollision()
+    {
+      using var data = new DataImplementation();
+
+      data.Start(2, 20.0, (pos, ball) =>
+      {
+        
+      });
+
+      Ball first;
+      Ball second;
+
+      if (data.BallsList[0].GetHashCode() < data.BallsList[1].GetHashCode())
+      {
+        first = data.BallsList[0];
+        second = data.BallsList[1];
+      }
+      else
+      {
+        first = data.BallsList[1];
+        second = data.BallsList[0];
+      }
+
+      lock (first.BallLock)
+      {
+        lock (second.BallLock)
+        {
+          first.Stop();
+          second.Stop();
+        }
+      }
+
+      double momentumX = first.PositionInternal.x * first.Mass + second.PositionInternal.x * second.Mass;
+      double momentumY = first.PositionInternal.y * first.Mass + second.PositionInternal.y * second.Mass;
+
+      first.ResolveBallCollision(first, second);
+
+      Assert.AreEqual(momentumX, first.PositionInternal.x * first.Mass + second.PositionInternal.x * second.Mass);
+      Assert.AreEqual(momentumY, first.PositionInternal.y * first.Mass + second.PositionInternal.y * second.Mass);
+    }
   }
 }
