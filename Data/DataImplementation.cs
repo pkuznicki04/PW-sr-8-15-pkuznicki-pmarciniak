@@ -84,6 +84,8 @@ namespace TP.ConcurrentProgramming.Data
 
     protected virtual void Dispose(bool disposing)
     {
+      loggerRunning = false;
+
       if (!Disposed)
       {
         if (disposing)
