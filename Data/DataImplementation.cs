@@ -10,7 +10,10 @@
 
 using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using System.Threading.Tasks.Dataflow;
 
 namespace TP.ConcurrentProgramming.Data
 {
@@ -20,6 +23,11 @@ namespace TP.ConcurrentProgramming.Data
 //UPŁYNNIAM RUCH ZMIENIAJĄC 100 na 16 -> 60FPS
     public DataImplementation()
     {
+      stopwatch = new Stopwatch();
+
+      loggerRunning = true;
+      loggerThread = new Thread(LoggerLoop);
+      loggerThread.Start();
     }
 
     #endregion ctor
@@ -32,6 +40,8 @@ namespace TP.ConcurrentProgramming.Data
         throw new ObjectDisposedException(nameof(DataImplementation));
       if (upperLayerHandler == null)
         throw new ArgumentNullException(nameof(upperLayerHandler));
+
+      stopwatch.Stop();
 
       lock (Lock)
       {
@@ -64,6 +74,8 @@ namespace TP.ConcurrentProgramming.Data
           ball.Start();
         }
       }
+
+      stopwatch.Start();
     }
 
     #endregion DataAbstractAPI
@@ -94,6 +106,13 @@ namespace TP.ConcurrentProgramming.Data
     #endregion IDisposable
 
     #region private
+    public readonly Stopwatch stopwatch;
+
+    public readonly Queue<string> logBuffer = new();
+    public readonly object bufferLock = new();
+
+    private Thread? loggerThread;
+    private bool loggerRunning;
 
     //private bool disposedValue;
     private bool Disposed = false;
@@ -104,6 +123,36 @@ namespace TP.ConcurrentProgramming.Data
     internal List<Ball> BallsList = [];
 
     private readonly object Lock = new object();
+
+    private void LoggerLoop()
+    {
+      using StreamWriter writer =
+          new($"{Directory.GetCurrentDirectory()}\\..\\..\\..\\..\\Logs\\{DateTime.Now:yyyy.MM.dd_HH-mm-ss}.log", true, Encoding.ASCII);
+
+      while (loggerRunning)
+      {
+        string? line = null;
+
+        lock (bufferLock)
+        {
+          while (logBuffer.Count == 0 && loggerRunning)
+          {
+            Monitor.Wait(bufferLock);
+          }
+
+          if (logBuffer.Count > 0)
+          {
+            line = logBuffer.Dequeue();
+          }
+        }
+
+        if (line != null)
+        {
+          writer.WriteLine(line);
+          writer.Flush();
+        }
+      }
+    }
 
     #endregion private
 

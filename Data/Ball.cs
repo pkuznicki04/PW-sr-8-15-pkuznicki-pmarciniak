@@ -9,6 +9,8 @@
 //_____________________________________________________________________________________________________________________________________
 
 using System.Diagnostics;
+using System.Globalization;
+using System.Threading.Tasks.Dataflow;
 
 namespace TP.ConcurrentProgramming.Data
 {
@@ -107,21 +109,39 @@ namespace TP.ConcurrentProgramming.Data
 
     private void BallLoop()
     {
-      Stopwatch stopwatch = Stopwatch.StartNew();
-
-      while(running)
+      Stopwatch stopwatch;
+      if (owner != null)
       {
-        double deltaTime = stopwatch.Elapsed.TotalSeconds;
-        stopwatch.Restart();
+        stopwatch = owner.stopwatch;
+      }
+      else
+      {
+        stopwatch = Stopwatch.StartNew();
+      }
 
-        Move(deltaTime);
-        long moveTime = stopwatch.ElapsedMilliseconds;
+      double currentTime = stopwatch.Elapsed.TotalSeconds;
+      double lastTime = stopwatch.Elapsed.TotalSeconds;
+      double deltaTime = currentTime - lastTime;
+      double moveTime = 0;
 
-        int sleepTime = 16 - (int)moveTime;
-        if (sleepTime > 0)
+      double repetitionTime = 0.016;
+
+      while (running)
+      {
+        currentTime = stopwatch.Elapsed.TotalSeconds;
+        deltaTime = currentTime - lastTime;
+        lastTime = currentTime;
+
+        moveTime += deltaTime;
+
+        while (moveTime > repetitionTime)
         {
-          Thread.Sleep(sleepTime);
+          Move(repetitionTime);
+
+          moveTime -= repetitionTime;
         }
+
+        Thread.Sleep(0);
       }
     }
 
@@ -204,7 +224,8 @@ namespace TP.ConcurrentProgramming.Data
           }
         }
       }
-      
+
+      Log();
     }
 
     internal void ResolveBallCollision(Ball a, Ball b)
@@ -304,6 +325,25 @@ namespace TP.ConcurrentProgramming.Data
         Position = nextPos;
 
         RaiseNewPositionChangeNotification();
+      }
+    }
+
+    private void Log()
+    {
+      string entry =
+          $"Time: {DateTime.Now:HH:mm:ss.fff}; " +
+          $"Thread: {Thread.CurrentThread.ManagedThreadId}; " + 
+          $"Position: " +
+          $"{Position.x.ToString("F2", CultureInfo.InvariantCulture)}, " +
+          $"{Position.y.ToString("F2", CultureInfo.InvariantCulture)}; " +
+          $"Velocity: " +
+          $"{Velocity.x.ToString("F2", CultureInfo.InvariantCulture)}, " +
+          $"{Velocity.y.ToString("F2", CultureInfo.InvariantCulture)}";
+
+      lock (owner.bufferLock)
+      {
+        owner.logBuffer.Enqueue(entry);
+        Monitor.Pulse(owner.bufferLock);
       }
     }
 
